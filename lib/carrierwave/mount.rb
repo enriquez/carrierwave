@@ -168,8 +168,12 @@ module CarrierWave
           _mounter(:#{column}).uploader
         end
 
-        def #{column}=(new_file)
-          _mounter(:#{column}).cache(new_file)
+        def #{column}=(value)
+          if value.kind_of?(CarrierWave::Uploader::Base)
+            _mounter(:#{column}).uploader = value
+          else
+            _mounter(:#{column}).cache(value)
+          end
         end
 
         def #{column}?
@@ -278,6 +282,11 @@ module CarrierWave
       
       def identifier
         record.read_uploader(serialization_column)
+      end
+
+      def uploader=(uploader)
+        record.write_uploader(serialization_column, uploader.model.read_uploader(serialization_column))
+        @uploader = uploader
       end
 
       def uploader
