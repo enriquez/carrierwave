@@ -110,6 +110,22 @@ describe CarrierWave::Mount do
         @instance.image = stub_file('test.jpg')
       end
       
+      context "given an uploader instance" do
+        before do
+          @other_instance = @class.new
+        end
+        it "should update the uploader" do
+          @instance.image = @other_instance.image
+          @instance.image.should == @other_instance.image
+        end
+
+        it "should set the identifier" do
+          @other_instance.image.stub_chain(:model, :read_uploader => 'id')
+          @instance.should_receive(:write_uploader).with(:image, 'id')
+
+          @instance.image = @other_instance.image
+        end
+      end
     end
 
     describe '#image?' do
